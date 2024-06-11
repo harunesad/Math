@@ -17,8 +17,6 @@ public class GameStates : MonoBehaviour
         Minus,
         Multiplication,
         Division,
-        Exponent,
-        SquareRoot,
         Mixed
     }
     void Start()

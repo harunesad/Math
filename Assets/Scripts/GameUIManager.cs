@@ -7,15 +7,13 @@ using UnityEngine.UI;
 public class GameUIManager : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI firstQuestion, secondQuestion, proccess;
-    [SerializeField] TMP_InputField min, max;
     [SerializeField] TMP_Dropdown time;
+    public TMP_InputField min, max;
     [SerializeField] GameStates gameStates;
     Button aBtn, bBtn, cBtn, dBtn;
     int firstNumber, secondNumber, questionNumber = 1;
-    int answer, answerId;
-    bool minor;
-    [SerializeField] List<TextMeshProUGUI> answersText;
-    List<TextMeshProUGUI> copyAnswersText;
+    int answer = -1, answerFirst = -1, answerSecond = -1, answerThird = -1, answerId;
+    [SerializeField] List<TextMeshProUGUI> answersText, copyAnswersText;
     private void Awake()
     {
         aBtn = answersText[0].GetComponentInParent<Button>();
@@ -26,13 +24,13 @@ public class GameUIManager : MonoBehaviour
     }
     void Start()
     {
-        
+        //QuestionAndAnswers();
     }
     void Update()
     {
-        
+
     }
-    void QuestionAndAnswers()
+    public void QuestionAndAnswers()
     {
         switch (gameStates.randomState)
         {
@@ -40,58 +38,48 @@ public class GameUIManager : MonoBehaviour
                 switch (gameStates.gameState)
                 {
                     case GameStates.GameState.Plus:
-                        firstNumber = Random.Range(0, questionNumber * 10);
-                        firstQuestion.text = firstNumber.ToString();
-                        secondNumber = Random.Range(0, questionNumber * 10);
-                        secondQuestion.text = secondNumber.ToString();
-                        answerId = Random.Range(0, answersText.Count);
-                        answer = firstNumber + secondNumber;
-                        answersText[answerId].text = answer.ToString();
-                        answersText.RemoveAt(answerId);
-                        minor = Random.Range(0, 2) == 0;
-                        if (minor)
-                        {
-                            answer = Random.Range(0, firstNumber + secondNumber);
-                        }
-                        else
-                        {
-                            answer = Random.Range(firstNumber + secondNumber, questionNumber * 20);
-                        }
-                        answersText[0].text = answer.ToString();
-                        minor = Random.Range(0, 2) == 0;
-                        if (minor)
-                        {
-                            answer = Random.Range(0, firstNumber + secondNumber);
-                        }
-                        else
-                        {
-                            answer = Random.Range(firstNumber + secondNumber, questionNumber * 20);
-                        }
-                        answersText[1].text = answer.ToString();
-                        minor = Random.Range(0, 2) == 0;
-                        if (minor)
-                        {
-                            answer = Random.Range(0, firstNumber + secondNumber);
-                        }
-                        else
-                        {
-                            answer = Random.Range(firstNumber + secondNumber, questionNumber * 20);
-                        }
-                        answersText[2].text = answer.ToString();
-                        answersText.Clear();
-                        answersText.AddRange(copyAnswersText);
+                        QuestionPlus();
+                        Answers();
                         break;
                     case GameStates.GameState.Minus:
+                        QuestionMinus();
+                        Answers();
                         break;
                     case GameStates.GameState.Multiplication:
+                        QusetionMultiplication();
+                        Answers();
                         break;
                     case GameStates.GameState.Division:
-                        break;
-                    case GameStates.GameState.Exponent:
-                        break;
-                    case GameStates.GameState.SquareRoot:
+                        QuestionDivision();
+                        Answers();
                         break;
                     case GameStates.GameState.Mixed:
+                        int proccessId = Random.Range(0, 4);
+                        switch (proccessId)
+                        {
+                            case 0:
+                                proccess.text = "+";
+                                QuestionPlus();
+                                Answers();
+                                break;
+                            case 1:
+                                proccess.text = "-";
+                                QuestionMinus();
+                                Answers();
+                                break;
+                            case 2:
+                                proccess.text = "x";
+                                QusetionMultiplication();
+                                Answers();
+                                break;
+                            case 3:
+                                proccess.text = "/";
+                                QuestionDivision();
+                                Answers();
+                                break;
+                            default:
+                                break;
+                        }
                         break;
                     default:
                         break;
@@ -108,10 +96,6 @@ public class GameUIManager : MonoBehaviour
                         break;
                     case GameStates.GameState.Division:
                         break;
-                    case GameStates.GameState.Exponent:
-                        break;
-                    case GameStates.GameState.SquareRoot:
-                        break;
                     case GameStates.GameState.Mixed:
                         break;
                     default:
@@ -121,5 +105,82 @@ public class GameUIManager : MonoBehaviour
             default:
                 break;
         }
+    }
+    void QuestionPlus()
+    {
+        proccess.text = "+";
+        answer = Random.Range(((questionNumber - 1) * 10) + 1, (questionNumber * 10) + 1);
+        firstNumber = Random.Range(0, answer);
+        firstQuestion.text = firstNumber.ToString();
+        secondNumber = answer - firstNumber;
+        secondQuestion.text = secondNumber.ToString();
+    }
+    void QuestionMinus()
+    {
+        proccess.text = "-";
+        answer = Random.Range(((questionNumber - 1) * 10) + 1, (questionNumber * 10) + 1);
+        firstNumber = Random.Range(answer, answer + 100);
+        firstQuestion.text = firstNumber.ToString();
+        secondNumber = firstNumber - answer;
+        secondQuestion.text = secondNumber.ToString();
+    }
+    void QusetionMultiplication()
+    {
+        proccess.text = "x";
+        answer = Random.Range(((questionNumber - 1) * 10) + 1, (questionNumber * 10) + 1);
+        List<int> multi = new List<int>();
+        for (int i = 1; i < answer + 1; i++)
+        {
+            if (answer % i == 0)
+            {
+                multi.Add(i);
+            }
+        }
+        int multiRandom = Random.Range(0, multi.Count);
+        firstNumber = multi[multiRandom];
+        firstQuestion.text = firstNumber.ToString();
+        secondNumber = answer / firstNumber;
+        secondQuestion.text = secondNumber.ToString();
+    }
+    void QuestionDivision()
+    {
+        proccess.text = "/";
+        answer = Random.Range(((questionNumber - 1) * 10) + 1, (questionNumber * 10) + 1);
+        List<int> division = new List<int>();
+        for (int i = 1; i < answer + 1; i++)
+        {
+            division.Add(i * answer);
+        }
+        int divisionRandom = Random.Range(0, division.Count);
+        firstNumber = division[divisionRandom];
+        firstQuestion.text = firstNumber.ToString();
+        secondNumber = firstNumber / answer;
+        secondQuestion.text = secondNumber.ToString();
+    }
+    void Answers()
+    {
+        answerId = Random.Range(0, answersText.Count);
+        answersText[answerId].text = answer.ToString();
+        answersText.RemoveAt(answerId);
+        answerFirst = Random.Range(answer - 10, answer + 10);
+        while (answerFirst == answer || answerFirst == answerSecond || answerFirst == answerThird || answerFirst < 0)
+        {
+            answerFirst = Random.Range(answer - 10, answer + 10);
+        }
+        answersText[0].text = answerFirst.ToString();
+        answerSecond = Random.Range(answer - 10, answer + 10);
+        while (answerSecond == answer || answerSecond == answerFirst || answerSecond == answerThird || answerSecond < 0)
+        {
+            answerSecond = Random.Range(answer - 10, answer + 10);
+        }
+        answersText[1].text = answerSecond.ToString();
+        answerThird = Random.Range(answer - 10, answer + 10);
+        while (answerThird == answer || answerThird == answerFirst || answerThird == answerSecond || answerThird < 0)
+        {
+            answerThird = Random.Range(answer - 10, answer + 10);
+        }
+        answersText[2].text = answerThird.ToString();
+        answersText.Clear();
+        answersText.AddRange(copyAnswersText);
     }
 }

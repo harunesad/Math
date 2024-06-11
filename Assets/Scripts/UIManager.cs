@@ -79,6 +79,10 @@ public class UIManager : MonoBehaviour
     }
     void StateSelect(int i, GameStates.RandomState randomState)
     {
+        if (randomState == GameStates.RandomState.Input && int.Parse(gameUIManager.max.text) - 40 < int.Parse(gameUIManager.min.text) - 1)
+        {
+            return;
+        }
         switch (i)
         {
             case 0:
@@ -99,14 +103,6 @@ public class UIManager : MonoBehaviour
                 break;
             case 4:
                 gameStates.randomState = randomState;
-                gameStates.gameState = GameStates.GameState.Exponent;
-                break;
-            case 5:
-                gameStates.randomState = randomState;
-                gameStates.gameState = GameStates.GameState.SquareRoot;
-                break;
-            case 6:
-                gameStates.randomState = randomState;
                 gameStates.gameState = GameStates.GameState.Mixed;
                 break;
             default:
@@ -121,5 +117,6 @@ public class UIManager : MonoBehaviour
             WindowChange(game, customize);
         }
         gameUIManager.enabled = true;
+        gameUIManager.QuestionAndAnswers();
     }
 }
