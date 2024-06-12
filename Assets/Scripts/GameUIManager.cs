@@ -6,13 +6,15 @@ using UnityEngine.UI;
 
 public class GameUIManager : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI firstQuestion, secondQuestion, proccess;
+    [SerializeField] TextMeshProUGUI firstQuestion, secondQuestion, proccess, timeText, countdownText;
     [SerializeField] TMP_Dropdown time;
-    public TMP_InputField min, max;
+    public TMP_Dropdown min, max;
     [SerializeField] GameStates gameStates;
     Button aBtn, bBtn, cBtn, dBtn;
     int firstNumber, secondNumber, questionNumber = 1;
     int answer = -1, answerFirst = -1, answerSecond = -1, answerThird = -1, answerId;
+    float timeCount, countdown;
+    bool countdownStart;
     [SerializeField] List<TextMeshProUGUI> answersText, copyAnswersText;
     private void Awake()
     {
@@ -28,7 +30,51 @@ public class GameUIManager : MonoBehaviour
     }
     void Update()
     {
-
+        if (countdown > 0 && countdownStart)
+        {
+            countdown -= Time.deltaTime;
+            countdownText.text = ((int)countdown).ToString();
+        }
+        else if (countdown <= 0 && countdownText.transform.parent.gameObject.activeSelf)
+        {
+            countdown = 0;
+            countdownText.transform.parent.gameObject.SetActive(false);
+        }
+        if (countdown <= 0 && timeCount > 0)
+        {
+            timeCount -= Time.deltaTime;
+            timeText.text = ((int)timeCount).ToString();
+        }
+        if (timeCount <= 0)
+        {
+            timeCount = 0;
+            timeText.text = ((int)timeCount).ToString();
+        }
+    }
+    public void TimeStart(bool input)
+    {
+        if (!input)
+        {
+            timeCount = 100;
+            timeText.text = timeCount.ToString();
+        }
+        else
+        {
+            timeCount = (time.value + 1) * 50;
+            timeText.text = timeCount.ToString();
+        }
+    }
+    public void Countdown()
+    {
+        countdown = 3;
+        countdownText.text = ((int)countdown).ToString();
+        countdownText.transform.parent.gameObject.SetActive(true);
+        StartCoroutine(WaitCountdownStart());
+    }
+    IEnumerator WaitCountdownStart()
+    {
+        yield return new WaitForSeconds(2);
+        countdownStart = true;
     }
     public void QuestionAndAnswers()
     {
@@ -38,19 +84,19 @@ public class GameUIManager : MonoBehaviour
                 switch (gameStates.gameState)
                 {
                     case GameStates.GameState.Plus:
-                        QuestionPlus();
+                        QuestionPlus(0);
                         Answers();
                         break;
                     case GameStates.GameState.Minus:
-                        QuestionMinus();
+                        QuestionMinus(0);
                         Answers();
                         break;
                     case GameStates.GameState.Multiplication:
-                        QusetionMultiplication();
+                        QusetionMultiplication(0);
                         Answers();
                         break;
                     case GameStates.GameState.Division:
-                        QuestionDivision();
+                        QuestionDivision(0);
                         Answers();
                         break;
                     case GameStates.GameState.Mixed:
@@ -58,23 +104,19 @@ public class GameUIManager : MonoBehaviour
                         switch (proccessId)
                         {
                             case 0:
-                                proccess.text = "+";
-                                QuestionPlus();
+                                QuestionPlus(0);
                                 Answers();
                                 break;
                             case 1:
-                                proccess.text = "-";
-                                QuestionMinus();
+                                QuestionMinus(0);
                                 Answers();
                                 break;
                             case 2:
-                                proccess.text = "x";
-                                QusetionMultiplication();
+                                QusetionMultiplication(0);
                                 Answers();
                                 break;
                             case 3:
-                                proccess.text = "/";
-                                QuestionDivision();
+                                QuestionDivision(0);
                                 Answers();
                                 break;
                             default:
@@ -89,14 +131,45 @@ public class GameUIManager : MonoBehaviour
                 switch (gameStates.gameState)
                 {
                     case GameStates.GameState.Plus:
+                        QuestionPlus(100 * min.value);
+                        //InputQuestionPlus();
+                        Answers();
                         break;
                     case GameStates.GameState.Minus:
+                        QuestionMinus(100 * min.value);
+                        Answers();
                         break;
                     case GameStates.GameState.Multiplication:
+                        QusetionMultiplication(100 * min.value);
+                        Answers();
                         break;
                     case GameStates.GameState.Division:
+                        QuestionDivision(100 * min.value);
+                        Answers();
                         break;
                     case GameStates.GameState.Mixed:
+                        int proccessId = Random.Range(0, 4);
+                        switch (proccessId)
+                        {
+                            case 0:
+                                QuestionPlus(100 * min.value);
+                                Answers();
+                                break;
+                            case 1:
+                                QuestionMinus(100 * min.value);
+                                Answers();
+                                break;
+                            case 2:
+                                QusetionMultiplication(100 * min.value);
+                                Answers();
+                                break;
+                            case 3:
+                                QuestionDivision(100 * min.value);
+                                Answers();
+                                break;
+                            default:
+                                break;
+                        }
                         break;
                     default:
                         break;
@@ -106,28 +179,28 @@ public class GameUIManager : MonoBehaviour
                 break;
         }
     }
-    void QuestionPlus()
+    void QuestionPlus(int input)
     {
         proccess.text = "+";
-        answer = Random.Range(((questionNumber - 1) * 10) + 1, (questionNumber * 10) + 1);
+        answer = Random.Range(((questionNumber - 1) * 10) + 1 + input, (questionNumber * 10) + 1 + input);
         firstNumber = Random.Range(0, answer);
         firstQuestion.text = firstNumber.ToString();
         secondNumber = answer - firstNumber;
         secondQuestion.text = secondNumber.ToString();
     }
-    void QuestionMinus()
+    void QuestionMinus(int input)
     {
         proccess.text = "-";
-        answer = Random.Range(((questionNumber - 1) * 10) + 1, (questionNumber * 10) + 1);
+        answer = Random.Range(((questionNumber - 1) * 10) + 1 + input, (questionNumber * 10) + 1 + input);
         firstNumber = Random.Range(answer, answer + 100);
         firstQuestion.text = firstNumber.ToString();
         secondNumber = firstNumber - answer;
         secondQuestion.text = secondNumber.ToString();
     }
-    void QusetionMultiplication()
+    void QusetionMultiplication(int input)
     {
         proccess.text = "x";
-        answer = Random.Range(((questionNumber - 1) * 10) + 1, (questionNumber * 10) + 1);
+        answer = Random.Range(((questionNumber - 1) * 10) + 1 + input, (questionNumber * 10) + 1 + input);
         List<int> multi = new List<int>();
         for (int i = 1; i < answer + 1; i++)
         {
@@ -142,10 +215,10 @@ public class GameUIManager : MonoBehaviour
         secondNumber = answer / firstNumber;
         secondQuestion.text = secondNumber.ToString();
     }
-    void QuestionDivision()
+    void QuestionDivision(int input)
     {
         proccess.text = "/";
-        answer = Random.Range(((questionNumber - 1) * 10) + 1, (questionNumber * 10) + 1);
+        answer = Random.Range(((questionNumber - 1) * 10) + 1 + input, (questionNumber * 10) + 1 + input);
         List<int> division = new List<int>();
         for (int i = 1; i < answer + 1; i++)
         {

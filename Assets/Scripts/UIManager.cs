@@ -79,7 +79,7 @@ public class UIManager : MonoBehaviour
     }
     void StateSelect(int i, GameStates.RandomState randomState)
     {
-        if (randomState == GameStates.RandomState.Input && int.Parse(gameUIManager.max.text) - 40 < int.Parse(gameUIManager.min.text) - 1)
+        if (randomState == GameStates.RandomState.Input && gameUIManager.max.value < gameUIManager.min.value)
         {
             return;
         }
@@ -111,12 +111,15 @@ public class UIManager : MonoBehaviour
         if (randomState == GameStates.RandomState.Random)
         {
             WindowChange(game, mod);
+            gameUIManager.TimeStart(false);
         }
         else
         {
             WindowChange(game, customize);
+            gameUIManager.TimeStart(true);
         }
         gameUIManager.enabled = true;
         gameUIManager.QuestionAndAnswers();
+        gameUIManager.Countdown();
     }
 }
