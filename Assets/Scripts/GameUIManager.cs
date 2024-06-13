@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class GameUIManager : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI firstQuestion, secondQuestion, proccess, timeText, countdownText;
+    public TextMeshProUGUI coinText;
     [SerializeField] TMP_Dropdown time;
     public TMP_Dropdown min, max;
     [SerializeField] GameStates gameStates;
-    Button aBtn, bBtn, cBtn, dBtn;
+    Button aBtn, bBtn, cBtn, dBtn, trueAnswerBtn, answerBtn;
     int firstNumber, secondNumber, questionNumber = 1;
     int answer = -1, answerFirst = -1, answerSecond = -1, answerThird = -1, answerId;
-    float timeCount, countdown;
-    bool countdownStart;
+    float timeCount, countdown, coin, gameCoin, superCoin;
+    bool countdownStart, click;
     [SerializeField] List<TextMeshProUGUI> answersText, copyAnswersText;
     private void Awake()
     {
@@ -22,6 +24,10 @@ public class GameUIManager : MonoBehaviour
         bBtn = answersText[1].GetComponentInParent<Button>();
         cBtn = answersText[2].GetComponentInParent<Button>();
         dBtn = answersText[3].GetComponentInParent<Button>();
+        aBtn.onClick.AddListener(delegate { TrueOrFalse(aBtn); });
+        bBtn.onClick.AddListener(delegate { TrueOrFalse(bBtn); });
+        cBtn.onClick.AddListener(delegate { TrueOrFalse(cBtn); });
+        dBtn.onClick.AddListener(delegate { TrueOrFalse(dBtn); });
         copyAnswersText.AddRange(answersText);
     }
     void Start()
@@ -38,6 +44,7 @@ public class GameUIManager : MonoBehaviour
         else if (countdown <= 0 && countdownText.transform.parent.gameObject.activeSelf)
         {
             countdown = 0;
+            countdownStart = false;
             countdownText.transform.parent.gameObject.SetActive(false);
         }
         if (countdown <= 0 && timeCount > 0)
@@ -45,8 +52,9 @@ public class GameUIManager : MonoBehaviour
             timeCount -= Time.deltaTime;
             timeText.text = ((int)timeCount).ToString();
         }
-        if (timeCount <= 0)
+        if (timeCount <= 0 || (gameStates.randomState == GameStates.RandomState.Input && ((questionNumber - 1) * 10) + 1 + 100 * min.value >= 100 * (max.value + 1)))
         {
+            click = true;
             timeCount = 0;
             timeText.text = ((int)timeCount).ToString();
         }
@@ -55,7 +63,7 @@ public class GameUIManager : MonoBehaviour
     {
         if (!input)
         {
-            timeCount = 100;
+            timeCount = 60;
             timeText.text = timeCount.ToString();
         }
         else
@@ -76,8 +84,76 @@ public class GameUIManager : MonoBehaviour
         yield return new WaitForSeconds(2);
         countdownStart = true;
     }
+    void TrueOrFalse(Button button)
+    {
+        if (click)
+        {
+            return;
+        }
+        answerBtn = button;
+        string options = proccess.text;
+        switch (options)
+        {
+            case "+":
+                Proccesses(firstNumber + secondNumber == int.Parse(button.GetComponentInChildren<TextMeshProUGUI>().text), button);
+                break;
+            case "-":
+                Proccesses(firstNumber - secondNumber == int.Parse(button.GetComponentInChildren<TextMeshProUGUI>().text), button);
+                break;
+            case "x":
+                Proccesses(firstNumber * secondNumber == int.Parse(button.GetComponentInChildren<TextMeshProUGUI>().text), button);
+                break;
+            case "/":
+                Proccesses(firstNumber / secondNumber == int.Parse(button.GetComponentInChildren<TextMeshProUGUI>().text), button);
+                break;
+            default:
+                break;
+        }
+        click = true;
+        questionNumber++;
+        if (timeCount <= 0 || (gameStates.randomState == GameStates.RandomState.Input && ((questionNumber - 1) * 10) + 1 + 100 * min.value >= 100 * (max.value + 1)))
+        {
+            return;
+        }
+        StartCoroutine(NewQuestion());
+    }
+    void Proccesses(bool state, Button button)
+    {
+        if (state)
+        {
+            button.GetComponent<Image>().DOColor(Color.green, .75f);
+            superCoin++;
+            if (superCoin == 4)
+            {
+                superCoin = 0;
+                coin += 20;
+            }
+            else
+            {
+                coin += 10;
+            }
+            coinText.text = (coin + gameCoin).ToString();
+        }
+        else
+        {
+            button.GetComponent<Image>().DOColor(Color.red, .75f);
+            trueAnswerBtn.GetComponent<Image>().DOColor(Color.green, .75f);
+            superCoin = 0;
+        }
+    }
+    IEnumerator NewQuestion()
+    {
+        yield return new WaitForSeconds(1);
+        QuestionAndAnswers();
+    }
     public void QuestionAndAnswers()
     {
+        click = false;
+        if (trueAnswerBtn && answerBtn)
+        {
+            trueAnswerBtn.GetComponent<Image>().color = Color.white;
+            answerBtn.GetComponent<Image>().color = Color.white;
+        }
         switch (gameStates.randomState)
         {
             case GameStates.RandomState.Random:
@@ -132,7 +208,6 @@ public class GameUIManager : MonoBehaviour
                 {
                     case GameStates.GameState.Plus:
                         QuestionPlus(100 * min.value);
-                        //InputQuestionPlus();
                         Answers();
                         break;
                     case GameStates.GameState.Minus:
@@ -234,6 +309,7 @@ public class GameUIManager : MonoBehaviour
     {
         answerId = Random.Range(0, answersText.Count);
         answersText[answerId].text = answer.ToString();
+        trueAnswerBtn = answersText[answerId].GetComponentInParent<Button>();
         answersText.RemoveAt(answerId);
         answerFirst = Random.Range(answer - 10, answer + 10);
         while (answerFirst == answer || answerFirst == answerSecond || answerFirst == answerThird || answerFirst < 0)
@@ -255,5 +331,28 @@ public class GameUIManager : MonoBehaviour
         answersText[2].text = answerThird.ToString();
         answersText.Clear();
         answersText.AddRange(copyAnswersText);
+    }
+    public bool CoinReset()
+    {
+        if (timeCount == 0)
+        {
+            gameCoin += coin;
+            coin = 0;
+            coinText.text = (coin + gameCoin).ToString();
+            questionNumber = 1;
+            return false;
+        }
+        else if (gameStates.randomState == GameStates.RandomState.Input && ((questionNumber - 1) * 10) + 1 + 100 * min.value >= 100 * (max.value + 1))
+        {
+            gameCoin += coin;
+            coin = 0;
+            coinText.text = (coin + gameCoin).ToString();
+            questionNumber = 1;
+            return false;
+        }
+        coin = 0;
+        coinText.text = (coin + gameCoin).ToString();
+        questionNumber = 1;
+        return true;
     }
 }

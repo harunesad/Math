@@ -50,6 +50,7 @@ public class UIManager : MonoBehaviour
             languageBtn.transform.parent = show.transform;
             soundBtn.transform.parent = show.transform;
             backBtn.transform.parent = show.transform;
+            gameUIManager.coinText.transform.parent = show.transform;
         });
     }
     void BackToMenu()
@@ -70,7 +71,7 @@ public class UIManager : MonoBehaviour
                     soundBtn.transform.parent = menu.transform;
                     backBtn.transform.parent = menu.transform;
                 });
-            }
+                gameUIManager.CoinReset();            }
         }
     }
     void PanelOpenClose(GameObject panel)
