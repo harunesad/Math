@@ -71,7 +71,9 @@ public class UIManager : MonoBehaviour
                     soundBtn.transform.parent = menu.transform;
                     backBtn.transform.parent = menu.transform;
                 });
-                gameUIManager.CoinReset();            }
+                gameUIManager.CoinReset();
+                gameUIManager.finishPanel.SetActive(false);
+            }
         }
     }
     void PanelOpenClose(GameObject panel)

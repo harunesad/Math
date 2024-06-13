@@ -12,6 +12,7 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] TMP_Dropdown time;
     public TMP_Dropdown min, max;
     [SerializeField] GameStates gameStates;
+    public GameObject finishPanel;
     Button aBtn, bBtn, cBtn, dBtn, trueAnswerBtn, answerBtn;
     int firstNumber, secondNumber, questionNumber = 1;
     int answer = -1, answerFirst = -1, answerSecond = -1, answerThird = -1, answerId;
@@ -54,6 +55,7 @@ public class GameUIManager : MonoBehaviour
         }
         if (timeCount <= 0 || (gameStates.randomState == GameStates.RandomState.Input && ((questionNumber - 1) * 10) + 1 + 100 * min.value >= 100 * (max.value + 1)))
         {
+            finishPanel.SetActive(true);
             click = true;
             timeCount = 0;
             timeText.text = ((int)timeCount).ToString();
