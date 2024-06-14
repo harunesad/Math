@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] List<Button> modsBtn, customizesBtn;
     [SerializeField] GameStates gameStates;
     [SerializeField] GameUIManager gameUIManager;
+    [SerializeField] CanvasGroup warning;
     void Start()
     {
         modBtn.onClick.AddListener(delegate { WindowChange(mod, menu); });
@@ -37,6 +39,14 @@ public class UIManager : MonoBehaviour
     void Update()
     {
 
+    }
+    public void Warn(string message) 
+    {
+        warning.GetComponent<TextMeshProUGUI>().text = message;
+        warning.DOFade(1, 1).OnComplete(() =>
+        {
+            warning.DOFade(0, 1);
+        });
     }
     void WindowChange(CanvasGroup show, CanvasGroup hide)
     {
@@ -84,6 +94,7 @@ public class UIManager : MonoBehaviour
     {
         if (randomState == GameStates.RandomState.Input && gameUIManager.max.value < gameUIManager.min.value)
         {
+            Warn("En yüksek sonuç en düþük sonuçtan büyük olmalýdýr.");
             return;
         }
         switch (i)

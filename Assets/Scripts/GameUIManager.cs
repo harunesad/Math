@@ -16,7 +16,8 @@ public class GameUIManager : MonoBehaviour
     Button aBtn, bBtn, cBtn, dBtn, trueAnswerBtn, answerBtn;
     int firstNumber, secondNumber, questionNumber = 1;
     int answer = -1, answerFirst = -1, answerSecond = -1, answerThird = -1, answerId;
-    float timeCount, countdown, coin, gameCoin, superCoin;
+    float timeCount, countdown, coin, superCoin;
+    public float gameCoin, extraTime;
     bool countdownStart, click;
     [SerializeField] List<TextMeshProUGUI> answersText, copyAnswersText;
     private void Awake()
@@ -65,7 +66,7 @@ public class GameUIManager : MonoBehaviour
     {
         if (!input)
         {
-            timeCount = 60;
+            timeCount = 60 + extraTime;
             timeText.text = timeCount.ToString();
         }
         else
@@ -125,16 +126,19 @@ public class GameUIManager : MonoBehaviour
         {
             button.GetComponent<Image>().DOColor(Color.green, .75f);
             superCoin++;
-            if (superCoin == 4)
+            if (gameStates.randomState == GameStates.RandomState.Random)
             {
-                superCoin = 0;
-                coin += 20;
+                if (superCoin == 4)
+                {
+                    superCoin = 0;
+                    coin += 20;
+                }
+                else
+                {
+                    coin += 10;
+                }
+                coinText.text = (coin + gameCoin).ToString();
             }
-            else
-            {
-                coin += 10;
-            }
-            coinText.text = (coin + gameCoin).ToString();
         }
         else
         {
