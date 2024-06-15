@@ -9,7 +9,7 @@ public class MarketUIManager : MonoBehaviour
     [SerializeField] Sprite selectMenu, unselectMenu;
     [SerializeField] Button selectButton;
     [SerializeField] GameUIManager gameUIManager;
-    [SerializeField] UIManager uiManager;
+    [SerializeField] UIManager uIManager;
     public List<ProductPanels> products;
     void Start()
     {
@@ -65,7 +65,7 @@ public class MarketUIManager : MonoBehaviour
         }
         else
         {
-            uiManager.Warn("Yeterli paranýz yok.");
+            uIManager.Warn("Yeterli paranýz yok.", uIManager.marketEntry);
         }
     }
 }

@@ -4,6 +4,9 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.Tables;
+using UnityEngine.Localization;
 
 public class UIManager : MonoBehaviour
 {
@@ -13,6 +16,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameStates gameStates;
     [SerializeField] GameUIManager gameUIManager;
     [SerializeField] CanvasGroup warning;
+    [SerializeField] TableReference gameTable;
+    [SerializeField] TableEntryReference customizeEntry;
+    public TableEntryReference marketEntry;
+    [SerializeField] LanguageManager languageManager;
+    private LocalizedString newLocalizedString;
     void Start()
     {
         modBtn.onClick.AddListener(delegate { WindowChange(mod, menu); });
@@ -40,9 +48,12 @@ public class UIManager : MonoBehaviour
     {
 
     }
-    public void Warn(string message) 
+    public void Warn(string message, TableEntryReference entry) 
     {
         warning.GetComponent<TextMeshProUGUI>().text = message;
+        warning.GetComponent<LocalizeStringEvent>().StringReference.SetReference(gameTable, entry);
+        warning.GetComponent<LocalizeStringEvent>().enabled = true;
+        warning.GetComponent<LocalizeStringEvent>().enabled = false;
         warning.DOFade(1, 1).OnComplete(() =>
         {
             warning.DOFade(0, 1);
@@ -94,7 +105,7 @@ public class UIManager : MonoBehaviour
     {
         if (randomState == GameStates.RandomState.Input && gameUIManager.max.value < gameUIManager.min.value)
         {
-            Warn("En yüksek sonuç en düþük sonuçtan büyük olmalýdýr.");
+            Warn("En yüksek sonuç en düþük sonuçtan büyük olmalýdýr.", customizeEntry);
             return;
         }
         switch (i)
