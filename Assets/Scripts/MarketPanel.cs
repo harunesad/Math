@@ -8,18 +8,37 @@ public class MarketPanel : MonoBehaviour
     Button myButton;
     public List<Product> products;
     [SerializeField] MarketUIManager marketUIManager;
+    public ProductType.Type productType;
+    public List<bool> buy;
     private void Awake()
     {
         myButton = GetComponent<Button>();
         myButton.onClick.AddListener(PanelSelect);
-        if (gameObject.name == "Pencils")
-        {
-            marketUIManager.PanelShow(products);
-        }
     }
     void Start()
     {
-        
+        JsonSave.jsonSave.ProductListFill(products.Count, productType);
+        switch (productType)
+        {
+            case ProductType.Type.Pencils:
+                buy.AddRange(JsonSave.jsonSave.sv.products.pencils);
+                break;
+            case ProductType.Type.Erasers:
+                buy.AddRange(JsonSave.jsonSave.sv.products.erasers);
+                break;
+            case ProductType.Type.Sharpeners:
+                buy.AddRange(JsonSave.jsonSave.sv.products.sharpeners);
+                break;
+            case ProductType.Type.TippedPens:
+                buy.AddRange(JsonSave.jsonSave.sv.products.tippedPens);
+                break;
+            default:
+                break;
+        }
+        if (gameObject.name == "Pencils")
+        {
+            marketUIManager.PanelShow(products, buy);
+        }
     }
     void Update()
     {
@@ -28,7 +47,7 @@ public class MarketPanel : MonoBehaviour
     void PanelSelect()
     {
         marketUIManager.SelectMenu(myButton);
-        marketUIManager.PanelShow(products);
+        marketUIManager.PanelShow(products, buy);
     }
 }
 [System.Serializable]

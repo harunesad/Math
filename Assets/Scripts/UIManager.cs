@@ -72,6 +72,10 @@ public class UIManager : MonoBehaviour
             soundBtn.transform.parent = show.transform;
             backBtn.transform.parent = show.transform;
             gameUIManager.coinText.transform.parent = show.transform;
+            //if (show == scoreboard)
+            //{
+            //    JsonSave.jsonSave.ScoreboardShowing();
+            //}
         });
     }
     void BackToMenu()
@@ -80,6 +84,11 @@ public class UIManager : MonoBehaviour
         {
             if (transform.GetChild(i).GetComponent<CanvasGroup>() && transform.GetChild(i).GetComponent<CanvasGroup>().alpha == 1 && menu.alpha == 0)
             {
+                if (game.alpha == 1)
+                {
+                    gameUIManager.CoinReset();
+                    gameUIManager.finishPanel.SetActive(false);
+                }
                 transform.GetChild(i).GetComponent<CanvasGroup>().interactable = false;
                 transform.GetChild(i).GetComponent<CanvasGroup>().blocksRaycasts = false;
                 gameUIManager.enabled = false;
@@ -92,8 +101,6 @@ public class UIManager : MonoBehaviour
                     soundBtn.transform.parent = menu.transform;
                     backBtn.transform.parent = menu.transform;
                 });
-                gameUIManager.CoinReset();
-                gameUIManager.finishPanel.SetActive(false);
             }
         }
     }

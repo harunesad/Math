@@ -29,14 +29,15 @@ public class MarketUIManager : MonoBehaviour
         myButton.GetComponent<Image>().sprite = selectMenu;
         selectButton = myButton;
     }
-    public void PanelShow(List<Product> products)
+    public void PanelShow(List<Product> products, List<bool> buy)
     {
         for (int i = 0; i < products.Count; i++)
         {
+            this.products[i].name.transform.parent.gameObject.SetActive(true);
             this.products[i].name.text = products[i].name;
             this.products[i].price.text = products[i].price.ToString();
             this.products[i].image.sprite = products[i].image;
-            this.products[i].buy = products[i].buy;
+            this.products[i].buy = buy[i];
             this.products[i].progress = products[i].progress;
             if (!this.products[i].buy)
             {
@@ -55,13 +56,16 @@ public class MarketUIManager : MonoBehaviour
     void BuyProduct(int i)
     {
         Debug.Log(int.Parse(products[i].price.text));
-        if (gameUIManager.gameCoin >= int.Parse(products[i].price.text))
+        if (JsonSave.jsonSave.sv.gameCoin >= int.Parse(products[i].price.text))
         {
-            gameUIManager.gameCoin -= int.Parse(products[i].price.text);
-            gameUIManager.coinText.text = gameUIManager.gameCoin.ToString();
+            JsonSave.jsonSave.sv.gameCoin -= int.Parse(products[i].price.text);
+            JsonSave.jsonSave.GameCoinShowing(gameUIManager.coinText);
+            //gameUIManager.coinText.text = gameUIManager.gameCoin.ToString();
             products[i].price.transform.parent.gameObject.SetActive(false);
-            selectButton.GetComponent<MarketPanel>().products[i].buy = false;
-            gameUIManager.extraTime += products[i].progress;
+            selectButton.GetComponent<MarketPanel>().buy[i] = false;
+            JsonSave.jsonSave.ProductSave(selectButton.GetComponent<MarketPanel>().productType, i);
+            JsonSave.jsonSave.sv.extraTime += products[i].progress;
+            SaveManager.Save(JsonSave.jsonSave.sv);
         }
         else
         {

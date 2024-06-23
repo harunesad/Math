@@ -17,7 +17,6 @@ public class GameUIManager : MonoBehaviour
     int firstNumber, secondNumber, questionNumber = 1;
     int answer = -1, answerFirst = -1, answerSecond = -1, answerThird = -1, answerId;
     float timeCount, countdown, coin, superCoin;
-    public float gameCoin, extraTime;
     bool countdownStart, click;
     [SerializeField] List<TextMeshProUGUI> answersText, copyAnswersText;
     private void Awake()
@@ -34,7 +33,7 @@ public class GameUIManager : MonoBehaviour
     }
     void Start()
     {
-        //QuestionAndAnswers();
+        //coinText.text = gameCoin.ToString();
     }
     void Update()
     {
@@ -66,7 +65,7 @@ public class GameUIManager : MonoBehaviour
     {
         if (!input)
         {
-            timeCount = 60 + extraTime;
+            timeCount = 10 + JsonSave.jsonSave.sv.extraTime;
             timeText.text = timeCount.ToString();
         }
         else
@@ -125,9 +124,9 @@ public class GameUIManager : MonoBehaviour
         if (state)
         {
             button.GetComponent<Image>().DOColor(Color.green, .75f);
-            superCoin++;
             if (gameStates.randomState == GameStates.RandomState.Random)
             {
+                superCoin++;
                 if (superCoin == 4)
                 {
                     superCoin = 0;
@@ -137,7 +136,7 @@ public class GameUIManager : MonoBehaviour
                 {
                     coin += 10;
                 }
-                coinText.text = (coin + gameCoin).ToString();
+                coinText.text = (coin + JsonSave.jsonSave.sv.gameCoin).ToString();
             }
         }
         else
@@ -340,24 +339,31 @@ public class GameUIManager : MonoBehaviour
     }
     public bool CoinReset()
     {
+        Debug.Log(coin);
         if (timeCount == 0)
         {
-            gameCoin += coin;
+            JsonSave.jsonSave.ResultSave(coin);
+            superCoin = 0;
+            //gameCoin += coin;
             coin = 0;
-            coinText.text = (coin + gameCoin).ToString();
+            //coinText.text = gameCoin.ToString();
+            JsonSave.jsonSave.GameCoinShowing(coinText);
             questionNumber = 1;
             return false;
         }
         else if (gameStates.randomState == GameStates.RandomState.Input && ((questionNumber - 1) * 10) + 1 + 100 * min.value >= 100 * (max.value + 1))
         {
-            gameCoin += coin;
-            coin = 0;
-            coinText.text = (coin + gameCoin).ToString();
+            //superCoin = 0;
+            //gameCoin += coin;
+            //coin = 0;
+            //coinText.text = gameCoin.ToString();
             questionNumber = 1;
             return false;
         }
+        superCoin = 0;
         coin = 0;
-        coinText.text = (coin + gameCoin).ToString();
+        //coinText.text = gameCoin.ToString();
+        JsonSave.jsonSave.GameCoinShowing(coinText);
         questionNumber = 1;
         return true;
     }
